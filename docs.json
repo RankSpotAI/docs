@@ -72,5 +72,11 @@
   "appearance": {
     "default": "light",
     "strict": true
+  },
+  "api": {
+    "params": {
+      "expanded": "all"
+    },
+    "url": "full"
   }
 }
