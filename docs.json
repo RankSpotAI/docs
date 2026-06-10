@@ -32,12 +32,15 @@
     },
     "groups": [
       {
-        "group": "API Endpoints",
-        "openapi": "https://api.rankspot.ai/docs-json",
+        "group": "Introduction",
         "pages": [
           "index",
           "quickstart"
-        ],
+        ]
+      },
+      {
+        "group": "API Endpoints",
+        "openapi": "https://api.rankspot.ai/docs-json",
         "expanded": true
       }
     ]
