@@ -3,7 +3,7 @@ title: "Introduction"
 description: "Welcome to your project"
 ---
 
-The RankSpot API gives you programmatic access to competitor research, keyword scoring, backlink analysis, forum link-building opportunities, "People Also Ask" mining, and AI-generated content — all from a single REST endpoint.
+The RankSpot API gives you programmatic access to competitor research, keyword scoring, backlink analysis, forum link-building opportunities, "People Also Ask" mining, and AI-generated content, all from a single REST endpoint.
 
 **Base URL:** `https://api.rankspot.ai/v1`
 
@@ -36,8 +36,13 @@ curl -H "Authorization: Bearer $RANKSPOT_API_KEY" \
 
 ## Using RankSpot with AI agents
 
-If you're building with Claude, Cursor, or another AI agent, install the official **RankSpot SEO Skill** instead of wiring up the API by hand. It ships with ready-to-use commands for every endpoint.
+If you're building with Claude, Cursor, VS Code, or another AI agent, you don't need to wire up the API by hand.
 
-<Card title="RankSpot Skill on GitHub" icon="github" href="https://github.com/RankSpotAI/rankspot-skill">
-  `npx skills add RankSpotAI/rankspot-skill --skill rankspot`
-</Card>
+<CardGroup cols={2}>
+  <Card title="MCP server" icon="plug" href="/mcp">
+    Connect your agent to `https://mcp.rankspot.ai` and work with your workspace in plain English. OAuth or API key, nothing to install.
+  </Card>
+  <Card title="RankSpot SEO Skill" icon="github" href="https://github.com/RankSpotAI/rankspot-skill">
+    `npx skills add RankSpotAI/rankspot-skill --skill rankspot`
+  </Card>
+</CardGroup>

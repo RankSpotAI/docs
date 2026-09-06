@@ -17,6 +17,7 @@
         "group": "Getting Started",
         "pages": [
           "index",
+          "mcp",
           "quickstart"
         ]
       }
@@ -35,6 +36,12 @@
         "group": "Introduction",
         "pages": [
           "index"
+        ]
+      },
+      {
+        "group": "MCP Server",
+        "pages": [
+          "mcp"
         ]
       },
       {

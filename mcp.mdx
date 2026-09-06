@@ -1,0 +1,483 @@
+---
+title: "MCP server"
+sidebarTitle: "MCP server"
+description: "Connect Claude, Cursor, VS Code, Codex, or any MCP client to your RankSpot workspace and do SEO research, planning, and writing in plain English."
+---
+
+The RankSpot MCP server lets any AI agent work directly with your RankSpot workspace. Your agent can research keywords, analyse competitors, find backlink gaps, track how AI answer engines describe your brand, plan content, and generate full articles, all without you writing a single API call.
+
+It is a hosted [Model Context Protocol](https://modelcontextprotocol.io) server, so there is nothing to install. You point your client at one URL and sign in once.
+
+<Card title="Server URL" icon="plug">
+  ```
+  https://mcp.rankspot.ai
+  ```
+  Transport: Streamable HTTP. Authentication: OAuth (recommended) or an API key.
+</Card>
+
+## What your agent can do
+
+<CardGroup cols={2}>
+  <Card title="Keyword research" icon="magnifying-glass">
+    Track keywords, read search volume and competition, and pull the semantic cluster around any seed term.
+  </Card>
+  <Card title="Competitor and backlink analysis" icon="chart-line">
+    Track competitor domains and find the sites linking to them but not to you.
+  </Card>
+  <Card title="AI visibility" icon="robot">
+    See how ChatGPT, Perplexity, and Google AI answers describe your brand, which pages they cite, and which searches they run.
+  </Card>
+  <Card title="Content planning and writing" icon="pen-nib">
+    Create actions, generate publish-ready articles, and organise everything by category.
+  </Card>
+  <Card title="Search Console" icon="google">
+    Read clicks, impressions, CTR, and position, check whether a page is indexed, and request re-indexing.
+  </Card>
+  <Card title="Live research" icon="globe">
+    Run a live Google search or fetch any public page as clean markdown.
+  </Card>
+</CardGroup>
+
+## Before you start
+
+<Steps>
+  <Step title="Create a RankSpot account">
+    Sign up at [rankspot.ai](https://www.rankspot.ai) and complete your workspace setup so your brand and business context are filled in.
+  </Step>
+  <Step title="Pick an MCP client">
+    Any client that supports remote MCP servers over Streamable HTTP works. See [Connect your client](#connect-your-client) for copy-paste config.
+  </Step>
+</Steps>
+
+## Choose how you authenticate
+
+Both methods give access to exactly one workspace. Pick OAuth unless your client cannot do it.
+
+| | OAuth | API key |
+| --- | --- | --- |
+| **How you sign in** | One browser sign-in, no secret to paste | Paste a key into your client config |
+| **Where the secret lives** | Managed by your client | In a config file you maintain |
+| **Rotation** | Automatic, tokens refresh in the background | You rotate the key yourself |
+| **Revoke** | **Settings → Connected Apps** | **Settings → API Keys** |
+| **Best for** | Claude, Claude Code, Cursor, Codex CLI, ChatGPT | CI, scripts, and clients without OAuth support |
+
+### OAuth (recommended)
+
+Add the server URL with no credentials. The first time your agent calls a tool, your client opens a RankSpot sign-in page where you:
+
+1. Log in to RankSpot.
+2. Choose which workspace to connect.
+3. Approve access.
+
+Your client stores the tokens and refreshes them automatically. The connected app only ever sees the workspace you picked.
+
+### API key
+
+Create a key under **Settings → API Keys** in the dashboard, then send it as a bearer token:
+
+```
+Authorization: Bearer YOUR_RANKSPOT_API_KEY
+```
+
+<Warning>
+  Treat your API key like a password. Never commit it to source control or paste it into a shared config file. Prefer OAuth wherever your client supports it.
+</Warning>
+
+## Connect your client
+
+<Tabs>
+  <Tab title="Claude">
+    Works in the Claude apps and on claude.ai.
+
+    <Steps>
+      <Step title="Open connector settings">
+        Go to **Settings → Connectors** and click **Add custom connector**.
+      </Step>
+      <Step title="Add the server">
+        Name it `RankSpot` and enter the MCP server URL:
+
+        ```
+        https://mcp.rankspot.ai
+        ```
+      </Step>
+      <Step title="Connect">
+        Click **Add**, then **Connect**. Sign in with OAuth and choose your workspace. If you would rather use an API key, paste it when prompted.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Claude Code">
+    **OAuth**
+
+    ```bash
+    claude mcp add --transport http rankspot https://mcp.rankspot.ai
+    ```
+
+    Then run `/mcp` inside Claude Code, select **rankspot**, and authorize in your browser.
+
+    **API key**
+
+    ```bash
+    claude mcp add --transport http rankspot https://mcp.rankspot.ai \
+      --header "Authorization: Bearer YOUR_RANKSPOT_API_KEY"
+    ```
+  </Tab>
+
+  <Tab title="Cursor">
+    Add this to `~/.cursor/mcp.json`.
+
+    **OAuth**
+
+    ```json
+    {
+      "mcpServers": {
+        "rankspot": {
+          "url": "https://mcp.rankspot.ai"
+        }
+      }
+    }
+    ```
+
+    **API key**
+
+    ```json
+    {
+      "mcpServers": {
+        "rankspot": {
+          "url": "https://mcp.rankspot.ai",
+          "headers": {
+            "Authorization": "Bearer YOUR_RANKSPOT_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="VS Code">
+    Add this to `.vscode/mcp.json` in your project, or to your user settings.
+
+    **OAuth**
+
+    ```json
+    {
+      "servers": {
+        "rankspot": {
+          "type": "http",
+          "url": "https://mcp.rankspot.ai"
+        }
+      }
+    }
+    ```
+
+    **API key**
+
+    ```json
+    {
+      "servers": {
+        "rankspot": {
+          "type": "http",
+          "url": "https://mcp.rankspot.ai",
+          "headers": {
+            "Authorization": "Bearer YOUR_RANKSPOT_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Codex CLI">
+    **OAuth**
+
+    ```bash
+    codex mcp add rankspot --url "https://mcp.rankspot.ai"
+    codex mcp login rankspot
+    ```
+
+    The second command opens a browser sign-in for RankSpot.
+
+    **API key**
+
+    Add this to `~/.codex/config.toml`:
+
+    ```toml
+    [mcp_servers.rankspot]
+    url = "https://mcp.rankspot.ai"
+    http_headers = { "Authorization" = "Bearer YOUR_RANKSPOT_API_KEY" }
+    ```
+  </Tab>
+
+  <Tab title="ChatGPT">
+    <Steps>
+      <Step title="Enable developer mode">
+        In ChatGPT, open **Settings → Connectors** and turn on **Developer mode**.
+      </Step>
+      <Step title="Add the connector">
+        Create a new connector with the MCP server URL:
+
+        ```
+        https://mcp.rankspot.ai
+        ```
+      </Step>
+      <Step title="Authorize">
+        Sign in with OAuth, or add your RankSpot API key as a bearer token. Then enable the connector inside a chat.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Other clients">
+    Any client that speaks MCP over Streamable HTTP can connect with the same URL and an `Authorization: Bearer` header.
+
+    If your client only supports local stdio servers, bridge to the remote server with `mcp-remote`:
+
+    ```json
+    {
+      "mcpServers": {
+        "rankspot": {
+          "command": "npx",
+          "args": ["-y", "mcp-remote", "https://mcp.rankspot.ai"]
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Check that it works
+
+Ask your agent:
+
+> What does my RankSpot workspace track?
+
+It should call `rankspot_get_workspace` and answer with your brand name, domain, and target market. If it does, you are connected.
+
+## Things to ask
+
+Once connected, talk to your agent in plain English. Good starting prompts:
+
+<AccordionGroup>
+  <Accordion title="Research and planning">
+    - "Which of my tracked keywords have the best opportunity score right now?"
+    - "Cluster the keywords around 'ai seo tools' and suggest one article that covers the whole cluster."
+    - "Add rankspot.ai's three biggest competitors and tell me what they rank for that I do not."
+    - "Find backlinks my competitors have that I am missing, and rank them by how easy they look."
+  </Accordion>
+  <Accordion title="AI visibility">
+    - "How visible is my brand in ChatGPT and Perplexity answers this month?"
+    - "Which pages do AI engines cite most when answering my tracked prompts?"
+    - "Show me the AI answers that mention my competitors but not me."
+    - "Start tracking the prompt 'best seo tool for startups'."
+  </Accordion>
+  <Accordion title="Content">
+    - "Plan four articles for next month based on my highest scoring keywords."
+    - "Generate the article for the 'programmatic seo guide' action."
+    - "List my published articles and tell me which ones need a refresh."
+  </Accordion>
+  <Accordion title="Search Console">
+    - "Which pages get lots of impressions but almost no clicks?"
+    - "Is https://example.com/blog/my-post indexed?"
+    - "Ask Google to re-index the pages I updated this week."
+  </Accordion>
+</AccordionGroup>
+
+## Available tools
+
+The server exposes 55 tools. Your agent picks the right ones automatically, so you rarely need this list. It is here for reference.
+
+<AccordionGroup>
+  <Accordion title="Workspace">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_get_workspace` | Brand and business context: name, domain, what you sell, audience, tone, country, and language. |
+  </Accordion>
+
+  <Accordion title="Keywords">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_keywords` | List tracked keywords with search volume, competition, and AI relevance scores. |
+    | `rankspot_add_keywords` | Start tracking one or more keywords. Duplicates are skipped. |
+    | `rankspot_get_keyword_cluster` | Return keywords semantically related to a seed keyword. |
+    | `rankspot_archive_keyword` | Archive a keyword so it drops out of the default list. |
+    | `rankspot_unarchive_keyword` | Restore an archived keyword. |
+  </Accordion>
+
+  <Accordion title="Competitors">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_competitors` | List tracked competitors, or brands RankSpot discovered in AI answers. |
+    | `rankspot_add_competitor` | Start tracking a competitor domain. |
+    | `rankspot_delete_competitor` | Stop tracking a competitor. Past AI visibility data is kept. |
+  </Accordion>
+
+  <Accordion title="Backlinks">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_backlinks` | List backlinks for link-gap analysis against your competitors. |
+    | `rankspot_update_backlink_status` | Mark a backlink opportunity processed, or requeue it as new. |
+    | `rankspot_archive_backlink` | Archive a backlink. |
+    | `rankspot_unarchive_backlink` | Restore an archived backlink. |
+  </Accordion>
+
+  <Accordion title="Actions and planning">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_actions` | List the SEO work planned, in progress, or done. |
+    | `rankspot_get_action` | Get one action with its type, status, linked keywords, and article. |
+    | `rankspot_create_action` | Create an action. The `type` decides which other fields apply. |
+    | `rankspot_update_action` | Update status, title, description, instructions, category, or linked keywords. |
+    | `rankspot_generate_article` | Trigger AI article generation for a `write_article` action. Runs asynchronously. |
+    | `rankspot_delete_action` | Permanently delete an action. Requires `confirm: true`. |
+  </Accordion>
+
+  <Accordion title="Articles">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_articles` | List articles without their body, so payloads stay small. |
+    | `rankspot_get_article` | Get one article including its full HTML content. |
+    | `rankspot_update_article` | Update title, description, slug, cover image, or category. |
+    | `rankspot_delete_article` | Permanently delete an article. Requires `confirm: true`. |
+  </Accordion>
+
+  <Accordion title="People also ask">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_people_also_ask` | Real questions found in search results for your tracked keywords. |
+    | `rankspot_update_people_also_ask` | Mark a question processed, or requeue it as new. |
+    | `rankspot_archive_people_also_ask` | Archive a question. |
+  </Accordion>
+
+  <Accordion title="Forum opportunities">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_forum_opportunities` | Reddit, Quora, and community threads where your product is relevant. |
+    | `rankspot_create_forum_opportunity` | Save a thread as an engagement opportunity. |
+    | `rankspot_update_forum_opportunity` | Mark an opportunity processed, or requeue it as new. |
+    | `rankspot_archive_forum_opportunity` | Archive an opportunity. |
+  </Accordion>
+
+  <Accordion title="Categories">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_categories` | List the categories used to organise actions and articles. |
+    | `rankspot_create_category` | Create a category. Names are unique per workspace. |
+    | `rankspot_update_category` | Rename a category. |
+    | `rankspot_delete_category` | Permanently delete a category. Requires `confirm: true`. |
+  </Accordion>
+
+  <Accordion title="Google Search Console">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_gsc_performance` | Clicks, impressions, CTR, and average position for the connected property. |
+    | `rankspot_gsc_inspect_url` | Check whether a single URL is indexed, and why not if it is not. |
+    | `rankspot_gsc_request_indexing` | Tell Google a URL was updated or removed. |
+
+    <Note>
+      These tools need a Google Search Console connection. Set it up in the RankSpot dashboard first.
+    </Note>
+  </Accordion>
+
+  <Accordion title="AI visibility">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_ai_visibility_summary` | Overall visibility, score per platform, share of voice, and citation share. |
+    | `rankspot_list_ai_prompts` | The questions RankSpot asks the AI platforms on every run. |
+    | `rankspot_add_ai_prompt` | Start tracking a new question. |
+    | `rankspot_update_ai_prompt` | Reword a tracked prompt while keeping its history. |
+    | `rankspot_archive_ai_prompt` | Stop running a prompt and free an allowance slot. History is kept. |
+    | `rankspot_unarchive_ai_prompt` | Put an archived prompt back into the daily run. |
+    | `rankspot_list_ai_responses` | The answers the platforms gave, newest first, with the brands they named. |
+    | `rankspot_get_ai_response` | One full answer as markdown, with its citations, searches, and brand mentions. |
+    | `rankspot_list_ai_citations` | The pages AI engines cite most when answering your prompts. |
+    | `rankspot_update_ai_citation_status` | Mark a cited page processed, or requeue it as new. |
+    | `rankspot_archive_ai_citation` | Hide a cited page from the worklist. It still counts towards citation share. |
+    | `rankspot_unarchive_ai_citation` | Restore an archived cited page. |
+  </Accordion>
+
+  <Accordion title="AI fanout queries">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_list_ai_fanout_queries` | The searches AI engines ran while answering your tracked prompts. |
+    | `rankspot_get_ai_fanout_query_cluster` | Searches that mean the same thing as a given one. |
+    | `rankspot_archive_ai_fanout_query` | Hide a fanout query from the worklist. |
+    | `rankspot_unarchive_ai_fanout_query` | Restore an archived fanout query. |
+  </Accordion>
+
+  <Accordion title="Live research">
+    | Tool | What it does |
+    | --- | --- |
+    | `rankspot_search_google` | Run a live Google search and get the results page back block by block. |
+    | `rankspot_fetch_page` | Fetch one public URL as markdown. Falls back to a second provider when the first is blocked. |
+  </Accordion>
+</AccordionGroup>
+
+### How destructive tools behave
+
+- Most removals are **archives**, which are reversible. Archived items drop out of the default list and come back with the matching unarchive tool.
+- The four true deletes (`rankspot_delete_action`, `rankspot_delete_article`, `rankspot_delete_category`, `rankspot_delete_competitor`) cannot be undone. The first three require `confirm: true`, which your agent should only set after you say so.
+- `rankspot_generate_article` is asynchronous. It returns immediately and the article appears about 5 to 10 minutes later. Ask your agent to check `rankspot_list_articles` rather than waiting.
+
+## Limits
+
+| Limit | Detail |
+| --- | --- |
+| Rate limit | 5,000 requests per minute. Normal agent use stays far below this. |
+| Trial and inactive plans | Read access is capped at the first 20 results per list, with no pagination. |
+| Inactive subscriptions | Reads keep working. Anything that writes, updates, or deletes is blocked until you reactivate. |
+| Prompt allowance | Tracked AI prompts are capped by your plan. Archive one to free a slot. |
+
+When a limit is hit, the tool returns a clear error such as `trial-pagination-limit` or `subscription-inactive`, so your agent can tell you what to do instead of retrying.
+
+## Manage access
+
+<CardGroup cols={2}>
+  <Card title="Connected Apps" icon="blocks" href="https://app.rankspot.ai/settings/connected-apps">
+    See every app connected over OAuth, when it was last used, and revoke it. Revoking takes effect on the app's next request.
+  </Card>
+  <Card title="API Keys" icon="key" href="https://app.rankspot.ai/settings/api-keys">
+    Create, review, and delete API keys. Each key is scoped to one workspace.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="My client keeps asking me to sign in">
+    Your access token expired and the refresh failed, or the grant was revoked. Remove the connector and add it again to run a fresh OAuth flow. If you use an API key, check that the key still exists under **Settings → API Keys** and has not expired.
+  </Accordion>
+
+  <Accordion title="Every tool returns 'Invalid API key'">
+    The header must be exactly `Authorization: Bearer YOUR_KEY`, with a single space after `Bearer`. Copy the key again from the dashboard, and make sure no quotes or line breaks were included.
+  </Accordion>
+
+  <Accordion title="I only get 20 results back">
+    You are on a trial or an inactive subscription, which caps lists at the first 20 results. Upgrade your plan to paginate further.
+  </Accordion>
+
+  <Accordion title="Writes fail with 'subscription-inactive'">
+    Reads keep working on an inactive subscription, but creating, updating, and deleting do not. Reactivate under **Settings → Subscription**.
+  </Accordion>
+
+  <Accordion title="The Search Console tools return an error">
+    Connect Google Search Console in the RankSpot dashboard first. For `rankspot_gsc_request_indexing`, the connection also needs the indexing scope, so reconnect if it was set up before you enabled it.
+  </Accordion>
+
+  <Accordion title="My article never appeared">
+    Generation takes about 5 to 10 minutes. Check `rankspot_list_articles` again after that. Also confirm the action is type `write_article` with status `new`, since generation is refused for any other type.
+  </Accordion>
+
+  <Accordion title="My client does not support remote MCP servers">
+    Use the `mcp-remote` bridge shown under [Other clients](#connect-your-client). It runs locally and forwards to `https://mcp.rankspot.ai`, including the OAuth flow.
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="REST API reference" icon="code" href="/">
+    Prefer to call the API directly? Every endpoint behind these tools is documented here.
+  </Card>
+  <Card title="RankSpot SEO Skill" icon="github" href="https://github.com/RankSpotAI/rankspot-skill">
+    Prefer a skill over a connector? `npx skills add RankSpotAI/rankspot-skill --skill rankspot`
+  </Card>
+</CardGroup>
