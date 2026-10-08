@@ -12,16 +12,6 @@
     "dark": "/images/logo.png"
   },
   "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "mcp-server",
-          "quickstart"
-        ]
-      }
-    ],
     "global": {
       "anchors": [
         {
@@ -46,7 +36,7 @@
       },
       {
         "group": "API Endpoints",
-        "openapi": "https://api.rankspot.ai/docs-json",
+        "openapi": "https://api.rankspot.ai/openapi.json",
         "expanded": true
       }
     ]
@@ -88,5 +78,11 @@
       "display": "interactive"
     }
   },
-  "description": "Use the RankSpot Articles API to programmatically generate, schedule, and publish SEO-optimized blog articles to your connected website."
+  "description": "RankSpot API and MCP server docs: keyword research, competitor and backlink analysis, AI visibility tracking, and article generation for your RankSpot workspace.",
+  "redirects": [
+    {
+      "source": "/mcp",
+      "destination": "/mcp-server"
+    }
+  ]
 }
