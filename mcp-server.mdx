@@ -1,10 +1,10 @@
 ---
 title: "MCP server"
 sidebarTitle: "MCP server"
-description: "Connect Claude, Cursor, VS Code, Codex, or any MCP client to your RankSpot workspace and do SEO research, planning, and writing in plain English."
+description: "Connect Claude, Cursor, VS Code, Codex, or any MCP client to your RankSpot workspaces and do SEO research, planning, and writing in plain English."
 ---
 
-The RankSpot MCP server lets any AI agent work directly with your RankSpot workspace. Your agent can research keywords, analyse competitors, find backlink gaps, track how AI answer engines describe your brand, plan content, and generate full articles, all without you writing a single API call.
+The RankSpot MCP server lets any AI agent work directly with your RankSpot workspaces. Your agent can research keywords, analyse competitors, find backlink gaps, track how AI answer engines describe your brand, plan content, and generate full articles, all without you writing a single API call.
 
 It is a hosted [Model Context Protocol](https://modelcontextprotocol.io) server, so there is nothing to install. You point your client at one URL and sign in once.
 
@@ -51,14 +51,14 @@ It is a hosted [Model Context Protocol](https://modelcontextprotocol.io) server,
 
 ## Choose how you authenticate
 
-Both methods give access to exactly one workspace. Pick OAuth unless your client cannot do it.
+Both methods act as you and reach every workspace you belong to: your own organization's, and those of any organization that invited you. Pick OAuth unless your client cannot do it.
 
 | | OAuth | API key |
 | --- | --- | --- |
 | **How you sign in** | One browser sign-in, no secret to paste | Paste a key into your client config |
 | **Where the secret lives** | Managed by your client | In a config file you maintain |
 | **Rotation** | Automatic, tokens refresh in the background | You rotate the key yourself |
-| **Revoke** | **Settings → Connected Apps** | **Settings → API Keys** |
+| **Revoke** | **Account settings → Connected Apps** | **Account settings → API Keys** |
 | **Best for** | Claude, Claude Code, Cursor, Codex CLI, ChatGPT | CI, scripts, and clients without OAuth support |
 
 ### OAuth (recommended)
@@ -66,14 +66,14 @@ Both methods give access to exactly one workspace. Pick OAuth unless your client
 Add the server URL with no credentials. The first time your agent calls a tool, your client opens a RankSpot sign-in page where you:
 
 1. Log in to RankSpot.
-2. Choose which workspace to connect.
+2. Review the organizations and workspaces the app will reach.
 3. Approve access.
 
-Your client stores the tokens and refreshes them automatically. The connected app only ever sees the workspace you picked.
+Your client stores the tokens and refreshes them automatically. The app reaches the workspaces you can open at the time of each request: join an organization and it can work there too, leave one and it loses access straight away.
 
 ### API key
 
-Create a key under **Settings → API Keys** in the dashboard, then send it as a bearer token:
+Create a key under **Account settings → API Keys** in the dashboard, then send it as a bearer token:
 
 ```
 Authorization: Bearer YOUR_RANKSPOT_API_KEY
@@ -101,7 +101,7 @@ Authorization: Bearer YOUR_RANKSPOT_API_KEY
         ```
       </Step>
       <Step title="Connect">
-        Click **Add**, then **Connect**. Sign in with OAuth and choose your workspace. If you would rather use an API key, paste it when prompted.
+        Click **Add**, then **Connect**. Sign in with OAuth and approve access. If you would rather use an API key, paste it when prompted.
       </Step>
     </Steps>
   </Tab>
@@ -248,9 +248,15 @@ Authorization: Bearer YOUR_RANKSPOT_API_KEY
 
 Ask your agent:
 
-> What does my RankSpot workspace track?
+> Which RankSpot workspaces do I have, and what does each one track?
 
-It should call `rankspot_get_workspace` and answer with your brand name, domain, and target market. If it does, you are connected.
+It should call `rankspot_list_workspaces`, then `rankspot_get_workspace` for each, and answer with the brand name, domain, and target market. If it does, you are connected.
+
+## Working across workspaces
+
+Every tool takes a required `workspace_id`, so your agent always says which site it is working on. It finds the ids with `rankspot_list_workspaces`, and asks you when it cannot tell which workspace you mean. Name the site or brand in your request ("for my client Acme, ...") and it will pick the right one.
+
+Connections and keys made before personal access reach only the workspace they were made for. Their tools take no `workspace_id`, and they keep working as before. To reach all your workspaces, add the connector again, or create a new key.
 
 ## Things to ask
 
@@ -283,12 +289,13 @@ Once connected, talk to your agent in plain English. Good starting prompts:
 
 ## Available tools
 
-The server exposes 63 tools. Your agent picks the right ones automatically, so you rarely need this list. It is here for reference.
+The server exposes 64 tools. Your agent picks the right ones automatically, so you rarely need this list. It is here for reference.
 
 <AccordionGroup>
   <Accordion title="Workspace">
     | Tool | What it does |
     | --- | --- |
+    | `rankspot_list_workspaces` | Every workspace you can reach, with its organization, brand, and domain. |
     | `rankspot_get_workspace` | Brand and business context: name, domain, what you sell, audience, tone, country, and language. |
   </Accordion>
 
@@ -313,7 +320,7 @@ The server exposes 63 tools. Your agent picks the right ones automatically, so y
   <Accordion title="Backlinks">
     | Tool | What it does |
     | --- | --- |
-    | `rankspot_list_backlinks` | List backlinks for link-gap analysis against your competitors. |
+    | `rankspot_list_backlinks` | List referring domains for link-gap analysis, ranked by how many of your competitors each one links to. |
     | `rankspot_update_backlink_status` | Mark a backlink opportunity processed, or requeue it as new. |
     | `rankspot_archive_backlink` | Archive a backlink. |
     | `rankspot_unarchive_backlink` | Restore an archived backlink. |
@@ -422,11 +429,11 @@ When a limit is hit, the tool returns a clear error such as `trial-pagination-li
 ## Manage access
 
 <CardGroup cols={2}>
-  <Card title="Connected Apps" icon="blocks" href="https://app.rankspot.ai/settings/connected-apps">
+  <Card title="Connected Apps" icon="blocks" href="https://app.rankspot.ai/account/connected-apps">
     See every app connected over OAuth, when it was last used, and revoke it. Revoking takes effect on the app's next request.
   </Card>
-  <Card title="API Keys" icon="key" href="https://app.rankspot.ai/settings/api-keys">
-    Create, review, and delete API keys. Each key is scoped to one workspace.
+  <Card title="API Keys" icon="key" href="https://app.rankspot.ai/account/api-keys">
+    Create, review, and delete API keys. A key acts as you across every workspace you belong to.
   </Card>
 </CardGroup>
 
@@ -434,11 +441,19 @@ When a limit is hit, the tool returns a clear error such as `trial-pagination-li
 
 <AccordionGroup>
   <Accordion title="My client keeps asking me to sign in">
-    Your access token expired and the refresh failed, or the grant was revoked. Remove the connector and add it again to run a fresh OAuth flow. If you use an API key, check that the key still exists under **Settings → API Keys** and has not expired.
+    Your access token expired and the refresh failed, or the grant was revoked. Remove the connector and add it again to run a fresh OAuth flow. If you use an API key, check that the key still exists under **Account settings → API Keys** and has not expired.
   </Accordion>
 
   <Accordion title="Every tool returns 'Invalid API key'">
     The header must be exactly `Authorization: Bearer YOUR_KEY`, with a single space after `Bearer`. Copy the key again from the dashboard, and make sure no quotes or line breaks were included.
+  </Accordion>
+
+  <Accordion title="A tool says the credential does not reach that workspace">
+    The `workspace_id` is not one you belong to, often because you were removed from that organization. Ask your agent to list your workspaces again.
+  </Accordion>
+
+  <Accordion title="My agent only sees one workspace">
+    The connection or key was made before personal access and is tied to one workspace. Add the connector again, or create a new key under **Account settings → API Keys**.
   </Accordion>
 
   <Accordion title="I only get 20 results back">

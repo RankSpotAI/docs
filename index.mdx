@@ -1,11 +1,11 @@
 ---
 title: "Introduction"
-description: "Welcome to your project"
+description: "Programmatic access to your RankSpot workspaces"
 ---
 
-The RankSpot API gives you programmatic access to competitor research, keyword scoring, backlink analysis, forum link-building opportunities, "People Also Ask" mining, and AI-generated content, all from a single REST endpoint.
+The RankSpot API gives you programmatic access to AI visibility, competitor research, keyword scoring, backlink analysis, "People Also Ask" mining, and AI-generated content.
 
-**Base URL:** `https://api.rankspot.ai/v1`
+**Base URL:** `https://api.rankspot.ai/v1/workspaces/{workspaceId}`
 
 ## Authentication
 
@@ -13,7 +13,7 @@ All requests are authenticated with a bearer token. Pass your API key in the `Au
 
 ```bash
 curl -H "Authorization: Bearer $RANKSPOT_API_KEY" \
-  https://api.rankspot.ai/v1/keywords
+  https://api.rankspot.ai/v1/workspaces/$RANKSPOT_WORKSPACE_ID/keywords
 ```
 
 <Steps>
@@ -21,14 +21,24 @@ curl -H "Authorization: Bearer $RANKSPOT_API_KEY" \
     Create an account at [rankspot.ai](https://www.rankspot.ai).
   </Step>
   <Step title="Generate a key">
-    Go to **Settings → API Keys** in the RankSpot dashboard and create a new key.
+    Open **Account settings → API Keys** from the menu under your avatar in the RankSpot dashboard and create a new key.
   </Step>
-  <Step title="Store it as an env var">
+  <Step title="Pick a workspace">
     ```bash
     export RANKSPOT_API_KEY=your_key_here
+    curl -H "Authorization: Bearer $RANKSPOT_API_KEY" https://api.rankspot.ai/v1/workspaces
+    export RANKSPOT_WORKSPACE_ID=the_id_you_picked
     ```
   </Step>
 </Steps>
+
+## Workspaces and keys
+
+A workspace is one site or brand, and an organization owns one or more of them. You can belong to several organizations: your own, and any that invited you.
+
+An API key is personal. It acts as you and reaches every workspace in every organization you belong to, so each request names one in its path: `/v1/workspaces/{workspaceId}/...`. `GET /v1/workspaces` lists the workspaces your key reaches, each with its organization. If you leave an organization, your key stops reaching its workspaces right away.
+
+Keys created before personal keys reach only the workspace they were made in. They keep working on the older paths without the workspace part (`/v1/keywords`), and get `403` if the path names a different workspace. A personal key on those older paths gets `400` with `workspace-required`.
 
 <Warning>
   Treat your API key like a password. Never commit it to source control or expose it in client-side code.
@@ -40,7 +50,7 @@ If you're building with Claude, Cursor, VS Code, or another AI agent, you don't 
 
 <CardGroup cols={2}>
   <Card title="MCP server" icon="plug" href="/mcp-server">
-    Connect your agent to `https://mcp.rankspot.ai` and work with your workspace in plain English. OAuth or API key, nothing to install.
+    Connect your agent to `https://mcp.rankspot.ai` and work with your workspaces in plain English. OAuth or API key, nothing to install.
   </Card>
   <Card title="RankSpot SEO Skill" icon="github" href="https://github.com/RankSpotAI/rankspot-skill">
     `npx skills add RankSpotAI/rankspot-skill --skill rankspot`
