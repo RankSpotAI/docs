@@ -341,8 +341,11 @@ The server exposes 64 tools. Your agent picks the right ones automatically, so y
     | Tool | What it does |
     | --- | --- |
     | `rankspot_list_articles` | List articles without their body, so payloads stay small. |
-    | `rankspot_get_article` | Get one article including its full HTML content. |
-    | `rankspot_update_article` | Update title, description, slug, cover image, or category. |
+    | `rankspot_get_article` | Get one article with its body as Markdown. |
+    | `rankspot_update_article` | Edit the body (the whole article as Markdown) and/or title, description, slug, cover image, or category. Every edit is kept in the revision history. |
+    | `rankspot_publish_article` | Publish the article to a connected integration, or update it there if already live. |
+    | `rankspot_list_article_revisions` | List the last 10 revisions of an article. |
+    | `rankspot_restore_article_revision` | Restore an older revision. The current one stays in the history. |
     | `rankspot_delete_article` | Permanently delete an article. Requires `confirm: true`. |
   </Accordion>
 
